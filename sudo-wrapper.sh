@@ -1,0 +1,35 @@
+#!/bin/bash
+# A POSIX variable
+OPTIND=1         # Reset in case getopts has been used previously in the shell.
+
+# Initialize our own variables:
+output_file=""
+verbose=0
+
+user=root
+
+while [[ $# > 1 ]] ; do
+    case "$1" in
+    -u)
+      case "$2" in
+        "") user='root' ; shift 2 ;;
+        *) user=$2 ; shift 2 ;;
+      esac ;;
+    -g)
+      case "$2" in
+        "") group='root' ; shift 2 ;;
+        *) group=$2 ; shift 2 ;;
+      esac ;;
+    -A|-b|-E|-H|-n|-P|-S) shift ;;
+    -C|-p|-r|-t) shift 2 ;;
+    *) break;
+    esac
+done
+
+if [ ! -z "${user:-}" ] && [ ! -z "${group:-}" ] ; then
+  usergroup="$user:$group"
+else
+  usergroup="$user"
+fi
+
+/bin/gosu $usergroup "$@"
